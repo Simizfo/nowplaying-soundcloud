@@ -6,6 +6,7 @@ This is really a proof of concept, and it's resource-intensive. It needs a lot o
 
 ## Screenshots
 ![Screenshot1](https://github.com/Simizfo/nowplaying-soundcloud/blob/master/screen0.jpg?raw=true)
+![Screenshot2](https://github.com/Simizfo/nowplaying-soundcloud/blob/master/screen1.jpg?raw=true)
 
 ## Features
 - Visualize what you're currently listening to, and the playback state.
