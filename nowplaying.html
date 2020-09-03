@@ -1,0 +1,113 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://kit.fontawesome.com/6e88bf3f1d.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="/nowplaying.css">
+        <link rel="stylesheet" href="https://style.sndcdn.com/css/interstate-a86f07cf94ae5a496b24.css">
+        <title>NowPlaying - SoundCloud</title>
+    </head>
+    <body>
+        <div id="main" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;" onmousemove="revealControls()">
+            <div id="background" class="background"></div>
+            <div class="upper-row-buttons">
+                <i class="fas fa-times button" onclick="closeNP()"></i>
+            </div>
+            <div class="playback-buttons">
+                <i class="fas fa-step-backward button" style="display: inline-block; margin-right: 15%;" onclick="changeSong('prev')"></i>
+                <i class="fas fa-play button" id="play-button" style="display: inline-block;" onclick="togglePlayback()"></i>
+                <i class="fas fa-step-forward button" style="display: inline-block; margin-left: 15%;" onclick="changeSong('next')"></i>
+            </div>
+            <div id="details" class="details">
+                <img id="cover-image" style="display:inline-block; width: 200px; height: 200px; filter: drop-shadow(2px 4px 6px black);">
+                <div style="display: inline-block; margin-left: 50px; max-width: 70%;">
+                    <h3 class="song-author"></h3>
+                    <h1 class="song-title"></h1>
+                </div>
+            </div>
+            <div id="playback-bar" class="playback-bar"></div>
+            <div id="playback-bar-full" class="playback-bar-full"></div>
+            <div id="playback-progress-tooltip" class="playback-progress-tooltip"></div>
+            <div id="playback-duration-tooltip" class="playback-duration-tooltip"></div>
+        </div>
+
+    </body>
+    <script>
+        var countdown = undefined;
+
+        window.addEventListener('message', event => {
+            if (event.origin.startsWith('https://soundcloud.com')) { 
+                if (event.data.startsWith('NP-TITLE: ')) {
+                    document.getElementsByClassName('song-title')[0].textContent = event.data.slice(10);
+                }
+                else if (event.data.startsWith('NP-AUTHOR: ')) {
+                    document.getElementsByClassName('song-author')[0].textContent = event.data.slice(11);
+                }
+                else if (event.data.startsWith('NP-HEROIMAGE: ')) {
+                    document.getElementsByClassName('background')[0].style.backgroundImage = 'url("' + event.data.slice(14) + '")';
+                    document.getElementsByClassName('background')[0].style.backgroundSize = '100%';
+                    document.getElementById('cover-image').src = event.data.slice(14);
+                } else if (event.data == 'NP-ISPLAYING') {
+                    document.getElementById('play-button').classList.remove('fa-play');
+                    document.getElementById('play-button').classList.add('fa-pause');
+                } else if (event.data == 'NP-NOTPLAYING') {
+                    document.getElementById('play-button').classList.remove('fa-pause');
+                    document.getElementById('play-button').classList.add('fa-play');
+                } else if (event.data.startsWith('NP-PROGRESS-')) {
+                    var current = hmsToSecondsOnly(event.data.split('-')[2]);
+                    var tot = hmsToSecondsOnly(event.data.split('-')[3]);
+                    document.getElementById('playback-progress-tooltip').innerText = event.data.split('-')[2];
+                    document.getElementById('playback-progress-tooltip').style.right = (100 - (current / tot * 100)) + '%';
+                    document.getElementById('playback-duration-tooltip').innerText = event.data.split('-')[3];
+                    document.getElementById('playback-duration-tooltip').style.left = (current / tot * 100) + '%';
+                    document.getElementById('playback-bar-full').style.width = (current / tot * 100) + '%';
+                    console.log((current / tot * 100) + '%');
+                }
+            } else return; 
+        }); 
+
+        function changeSong(to) {
+            if(to == "prev") {
+                window.parent.postMessage('NP-PREVIOUSSONG', '*');
+            } else {
+                window.parent.postMessage('NP-NEXTSONG', '*');
+            }
+        }
+
+        function togglePlayback() {
+            document.getElementById('play-button').classList.toggle('fa-play');
+            document.getElementById('play-button').classList.toggle('fa-pause');
+            window.parent.postMessage('NP-PLAY', '*');
+        }
+
+        function hideControls() {
+            document.getElementsByClassName('playback-buttons')[0].style.opacity = '0';
+            document.getElementById('playback-progress-tooltip').style.opacity = '0';
+            document.getElementById('playback-duration-tooltip').style.opacity = '0';
+        }
+
+        function revealControls() {
+            document.getElementsByClassName('playback-buttons')[0].style.opacity = '0.5';
+            document.getElementById('playback-progress-tooltip').style.opacity = '0.7';
+            document.getElementById('playback-duration-tooltip').style.opacity = '0.4';
+            clearTimeout(countdown);
+            countdown = setTimeout(hideControls, 2000);
+        }
+
+        function closeNP() {
+            window.parent.postMessage('NP-CLOSE', '*');
+        }
+
+        function hmsToSecondsOnly(str) {
+            var p = str.split(':'),
+                s = 0, m = 1;
+
+            while (p.length > 0) {
+                s += m * parseInt(p.pop(), 10);
+                m *= 60;
+            }
+
+            return s;
+        }
+    </script>
+</html>
