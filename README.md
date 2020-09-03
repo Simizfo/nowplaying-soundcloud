@@ -19,5 +19,10 @@ This is really a proof of concept, and it's resource-intensive. It needs a lot o
 - ???
 - Profit
 
+## What is in this repo
+- Two screenshot files (screen0.jpg, screen1.jpg)
+- The tampermonkey script (nowplaying.js) <- This is the only one you need
+- The source for the html and the linked css file (nowplaying.html, nowplaying.css)
+
 ## Issues and Suggestions
 Please open a ticket if you want to report an issue or ask for a new feature. This is a side project that I'm releasing for the sake of not forgetting it, so don't expect me to fix bugs :P
